@@ -23,11 +23,12 @@ class AuthController extends Controller
             return response()->json(['message' => 'The provided data is incorrect.', 'errors' => $validator->errors()], 400);
         }
 
-        $createdUser = User::create([
-    'username'      => $request->input('username'),
-    'email'         => $request->input('email'),
-    'password_hash' => Hash::make($request->input('password')),
-]);
+        $createdUser = Auth::createUser(
+            $request->input('username'),
+            $request->input('email'),
+            //Hash használata a jelszó biztonságos tárolásához
+            Hash::make($request->input('password'))
+        );
 
         if (!$createdUser) {
             return response()->json(['message' => 'An error occurred while creating the user.'], 500);
@@ -47,13 +48,16 @@ class AuthController extends Controller
             return response()->json(['message' => 'The provided data is incorrect.', 'errors' => $validator->errors()], 400);
         }
         // Ellenőrizzük, hogy a felhasználó létezik-e az adat
-        $user = User::where('email', $request->input('email'))->first();
+        $user = Auth::checkUser(null, $request->input('email'));
 
-        if (!$user || !Hash::check($request->input('password'), $user->password_hash)) {
+
+
+        if (!$user || !Hash::check($request->input('password'), $user['password_hash'])) {
             return response()->json(['message' => 'Invalid login details.'], 401);
         }
         //bejelentkezés után token generálása ami a felhasználóhoz lesz kötve és a kliensnek visszaadjuk    
-        $token = $user->createToken('auth')->plainTextToken;
+        $model = User::hydrate([$user])->first();
+        $token = $model->createToken('auth')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful.',
