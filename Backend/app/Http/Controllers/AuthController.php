@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Auth;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    function register(Request $request)
+    public function register(Request $request)
     {
-        
+        // Validáljuk a beérkező adatokat
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|max:100|unique:user,username',
             'email'    => 'required|string|email|max:255|unique:user,email',
@@ -22,55 +23,54 @@ class AuthController extends Controller
             return response()->json(['message' => 'The provided data is incorrect.', 'errors' => $validator->errors()], 400);
         }
 
-        $username = $request->input('username');
-        $email = $request->input('email');
-        $password = Hash::make($request->input('password'));
+        $createdUser = Auth::createUser(
+            $request->input('username'),
+            $request->input('email'),
+            //Hash használata a jelszó biztonságos tárolásához
+            Hash::make($request->input('password'))
+        );
 
-        $existingUser = Auth::checkUser($username, $email);
-
-        if (!empty($existingUser)) {
-            return response()->json(['message' => 'The username or email is already taken.'], 400);
-        }
-
-        $createdUser = Auth::createUser($username, $email, $password);
         if (!$createdUser) {
             return response()->json(['message' => 'An error occurred while creating the user.'], 500);
-        }else{
-            return response()->json(['message' => 'The user was created successfully.'], 201);
         }
+
+        return response()->json(['message' => 'The user was created successfully.'], 201);
     }
-    function login(Request $request)
+
+    public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string',
+            'email'    => 'required|string|email',
             'password' => 'required|string'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['message' => 'The provided data is incorrect.', 'errors' => $validator->errors()], 400);
         }
+        // Ellenőrizzük, hogy a felhasználó létezik-e az adat
+        $user = Auth::checkUser(null, $request->input('email'));
 
-        $username = $request->input('username');
-        $password = $request->input('password');
 
-        $user = Auth::checkUser($username, null);
 
-        if (empty($user)) {
-            return response()->json(['message' => 'Invalid username or password.'], 401);
+        if (!$user || !Hash::check($request->input('password'), $user['password_hash'])) {
+            return response()->json(['message' => 'Invalid login details.'], 401);
         }
+        //bejelentkezés után token generálása ami a felhasználóhoz lesz kötve és a kliensnek visszaadjuk    
+        $model = User::hydrate([$user])->first();
+        $token = $model->createToken('auth')->plainTextToken;
 
-        if (!Hash::check($password, $user[0]->password_hash)) {
-            return response()->json(['message' => 'Invalid username or password.'], 401);
-        }
-        return response()->json(['message' => 'Login successful.'], 200);
-        function deleteUser($username)
-        {
-            $deleted = Auth::deleteUser($username);
-            if ($deleted) {
-                return response()->json(['message' => 'The user was deleted successfully.'], 200);
-            } else {
-                return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
-            }
-        }
+        return response()->json([
+            'message' => 'Login successful.',
+            'token'   => $token,
+            'user'    => $user
+        ], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        // A felhasználó aktuális hozzáférési tokenjének törlése a kijelentkezéshez
+        $request->user()->currentAccessToken()->delete();
+ 
+        return response()->json(['message' => 'Logout successful.'], 200);
     }
 }
