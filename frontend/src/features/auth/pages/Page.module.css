@@ -18,6 +18,9 @@
 }
 
 .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin: 0 0 1rem;
     color: aliceblue;
     font-size: xx-large;

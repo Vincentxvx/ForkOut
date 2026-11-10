@@ -1,10 +1,14 @@
 import styles from './Page.module.css'
 import { Link } from 'react-router-dom'
+import logo from '../../../assets/forkout-mark-white.svg'
 
 function RegisterPage() {
     return (
         <main className={styles.page}>
-            <p className={styles.logo}>ForkOut</p>
+            <div className={styles.logo}>
+                <img src={logo} alt="" width="48" height="48" />
+                <span>ForkOut</span>
+            </div>
             <form className={styles.card}>
                 <h1 className={styles.title}>Sign up</h1>
 
