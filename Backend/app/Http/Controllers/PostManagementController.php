@@ -7,43 +7,37 @@ use Illuminate\Http\Request;
 
 class PostManagementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    public function ingredient(Request $request){
+        $searchText = $request-> json('searchText'); //I expect a {'searchText': 'some string'} structure
+        if (empty($searchText)){
+            return;
+        }
+        $result = PostManagement::ingredientSearch($searchText);
+        return response()-> json($result);
     }
+    public function upload(Request $request){
+        $recipeData = $request -> all();
+        /*I expect a data structure like this
+        {
+        "userID": userId,
+        "name": recipeName,
+        "description": description,
+        "preptime": preptime,
+        "dateOFCREATION": date,
+        "imgURL": imageUrl,
+        "ingredientId": [firstID, secondID...],
+        "quantity":  [firstQUANTITY, sedondQUANTITY...],
+        "unit" : [firstUNIT, secondUNIT...],
+        "instructions": [firstINTSTRUCTION, secondINSTRUCTION...]
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        }
+        */
+        /*
+        First, I have to query every property of every ingredient, then sum the micronutrients. 
+        Then I insert the recipe's data into the recipe table. 
+        Then I connect the recipe with the ingredients (also uploading their quantites and unit of measurement).
+        Then at last I insert the instructions into the database.
+        */
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(PostManagement $postManagement)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, PostManagement $postManagement)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PostManagement $postManagement)
-    {
-        //
     }
 }
