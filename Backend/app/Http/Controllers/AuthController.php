@@ -16,17 +16,20 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|max:100|unique:user,username',
             'email'    => 'required|string|email|max:255|unique:user,email',
-            'password' => 'required|string|min:6'
+            'password' => 'required|string|min:6',
+            
         ]);
 
         if ($validator->fails()) {
             return response()->json(['message' => 'The provided data is incorrect.', 'errors' => $validator->errors()], 400);
         }
 
+        
         $createdUser = Auth::createUser(
             $request->input('username'),
             $request->input('email'),
-            //Hash használata a jelszó biztonságos tárolásához
+            
+
             Hash::make($request->input('password'))
         );
 
