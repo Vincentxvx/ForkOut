@@ -15,9 +15,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
+    Route::get('/recipe/ingredient', [PostManagementController::class, 'ingredient']);
     Route::post('/recipe/upload', [PostManagementController::class, 'upload']);
 
     
 });
-Route::get('/recipe/ingredient', [PostManagementController::class, 'ingredient']);
