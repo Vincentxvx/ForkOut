@@ -17,6 +17,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::get('/recipe/ingredient', [PostManagementController::class, 'ingredient']);
     Route::post('/recipe/upload', [PostManagementController::class, 'upload']);
+    Route::delete('/recipe/delete', [PostManagementController::class, 'delete']);
 
     
 });

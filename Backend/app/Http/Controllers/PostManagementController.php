@@ -8,6 +8,49 @@ use Illuminate\Support\Str;
 
 class PostManagementController extends Controller
 {
+
+    public function delete(Request $request){
+        $userId= user()['user_id']; 
+        $userName = user()['username'];
+    
+        $recipeID = $request->json('recipdeId');
+        if (empty($recipeID)){
+            return response()->json(["response"=>"Please select a recipe"], 400);
+        }
+        $recipe= PostManagement::recipeFind($recipeID);
+        if(empty($recipe)){
+            return response()->json(["response"=>"This recipe doesn't exist"],400);
+        }
+        if ($recipe["user_id"]!=$userId){
+            return response()->json(["response"=>"This recipe doesn't belong to you"], 403);
+        }
+        $instructionDelete=PostManagement::instructionDelete($recipeID);
+        $instructionCheck=PostManagement::instructionCheck($recipeID);
+        if ($instructionCheck){
+            return response()->json(["response"=>"Some instruction isn't deleted"], 404);
+        }
+        $ingConnectionDelete=PostManagement::ingredientDelete($recipeID);
+        $ingConnectionCheck=PostManagement::ingredientCheck($recipeID);
+        if ($ingConnectionCheck){
+            return response()->json(["response"=>"Some connection between the recipe and ingredient tables isn't deleted"], 404);
+        }
+        $recipeDelete=PostManagement::recipeDelete($recipeID);
+        $recipeCheck=PostManagement::recipeCheck($recipeID);
+        if ($recipeCheck){
+            return response()->json(["response"=>"The recipe isn't deleted"], 404);
+        }
+        return http_response_code(200);
+
+        /*
+        I will have to ask Bertalan what's the final method to get the logged in users datas.
+        The order among the tables: 
+        instruction database
+        recipe and ingredients connection table
+        recipe table
+        */
+
+    }
+
     public function ingredient(Request $request){
         $searchText = $request-> json('searchText'); //I expect a {'searchText': 'some string'} structure
         if (empty($searchText)){
@@ -16,6 +59,7 @@ class PostManagementController extends Controller
         $result = PostManagement::ingredientSearch($searchText);
         return response()-> json($result,200);
     }
+    
 
     
     public function upload(Request $request){

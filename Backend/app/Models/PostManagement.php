@@ -21,5 +21,20 @@ class PostManagement extends Model
     public static function recipe_ingredient($recipeID ,$ingredient_id, $quantity, $unit){
         return DB::insert('INSERT INTO recipe_ingredient (recipe_id, ingredient_id, amount, unit) VALUES (?, ?, ?, ?);',[$recipeID, $ingredient_id, $quantity, $unit]);
     }
+
+    public static function instructionDelete($recipeID){
+        return DB::delete('DELETE FROM instruction WHERE recipe_id=?;', [$recipeID]);
+    }
+
+    public static function instructionCheck($recipeID){
+        return DB::table('instruction')->where('recipe_id', $recipeID)->exist();
+    }
+    public static function ingredientDelete($recipeID){
+        return DB::delete('DELETE FROM recipe_ingredient WHERE recipe_id=?;', [$recipeID]);
+    }
+
+    public static function ingredientCheck($recipeID){
+        return DB::table('recipe_ingredient')->where('recipe_id', $recipeID)->exist();
+    }
 }
 
