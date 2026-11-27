@@ -1,22 +1,36 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import dummyRecipes from '../dummyRecipes'
-import logo from '../../../assets/forkout-mark-white.svg'
 import styles from './FeedPage.module.css'
 
 function FeedPage() {
     const recipes = dummyRecipes
     const [index, setIndex] = useState(0)
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
 
     const recipe = recipes[index]
-    const isFirst = index === 0
-    const isLast = index === recipes.length - 1
+
+    function showNextRecipe() {
+        setIndex((index + 1) % recipes.length)
+    }
 
     return (
         <div className={styles.page}>
-            <header className={styles.header}>
-                <img src={logo} alt="" width="32" height="32" />
-                <span className={styles.logoText}>ForkOut</span>
-            </header>
+            <aside className={styles.sidebar}>
+                <p className={styles.logo}>ForkOut</p>
+                <input className={styles.search} type="search" placeholder="Search" aria-label="Search recipes" />
+
+                <nav className={styles.nav}>
+                    <Link className={styles.navItem} to="/feed">
+                        <span className={styles.navIcon} aria-hidden="true">⌂</span>
+                        Home
+                    </Link>
+                    <button className={styles.navItem} type="button">
+                        <span className={styles.navIcon} aria-hidden="true">♥</span>
+                        Likes / Posts
+                    </button>
+                </nav>
+            </aside>
 
             <main className={styles.main}>
                 {recipes.length === 0 && <p className={styles.message}>No recipes yet.</p>}
@@ -24,69 +38,66 @@ function FeedPage() {
                 {recipe && (
                     <section className={styles.feed} aria-label="Recipe feed">
                         <div className={styles.column}>
-                            <button
-                                className={styles.arrow}
-                                type="button"
-                                aria-label="Previous recipe"
-                                disabled={isFirst}
-                                onClick={() => setIndex(index - 1)}
-                            >
-                                ▲
-                            </button>
-
                             <article className={styles.card}>
-                                <p className={styles.counter}>{index + 1} / {recipes.length}</p>
-
                                 {recipe.media_url ? (
                                     <img className={styles.media} src={recipe.media_url} alt={recipe.name} />
                                 ) : (
-                                    <div className={styles.mediaPlaceholder}>No photo yet</div>
+                                    <div className={styles.mediaPlaceholder}>...</div>
                                 )}
 
-                                <div className={styles.info}>
-                                    <p className={styles.creator}>
-                                        <span className={styles.creatorAvatar} aria-hidden="true"></span>
-                                        {recipe.username}
-                                    </p>
-                                    <h1 className={styles.name}>{recipe.name}</h1>
-                                    <p className={styles.description}>{recipe.description}</p>
-                                    <ul className={styles.tags}>
+                                <div className={styles.overlay}>
+                                    <div className={styles.overlayRow}>
+                                        <p className={styles.chip}>{recipe.username}</p>
+                                        <h1 className={`${styles.chip} ${styles.name}`}>{recipe.name}</h1>
+                                    </div>
+                                    <ul className={styles.features}>
                                         <li>{recipe.prep_time} min</li>
                                         <li>{recipe.calorie} kcal</li>
                                         <li>{recipe.protein} g protein</li>
                                     </ul>
-                                    <button className={styles.primary} type="button">Open recipe</button>
                                 </div>
                             </article>
 
-                            <button
-                                className={styles.arrow}
-                                type="button"
-                                aria-label="Next recipe"
-                                disabled={isLast}
-                                onClick={() => setIndex(index + 1)}
-                            >
-                                ▼
+                            <button className={styles.next} type="button" aria-label="Next recipe" onClick={showNextRecipe}>
+                                <svg width="28" height="16" viewBox="0 0 28 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M3 3l11 10 11-10" />
+                                </svg>
                             </button>
                         </div>
 
                         <div className={styles.actions}>
-                            <div className={styles.action}>
-                                <button className={styles.actionButton} type="button" aria-label="Like">♥</button>
+                            <button className={styles.actionButton} type="button" aria-label={`Like, ${recipe.like_count} likes`}>
                                 {recipe.like_count}
-                            </div>
-                            <div className={styles.action}>
-                                <button className={styles.actionButton} type="button" aria-label="Add to meal plan">+</button>
-                                Plan
-                            </div>
-                            <div className={styles.action}>
-                                <button className={styles.actionButton} type="button" aria-label="Share">↗</button>
-                                Share
-                            </div>
+                                <span className={styles.actionCount}></span>
+                            </button>
+                            <button className={styles.actionButton} type="button" aria-label="Add to meal plan">+</button>
+                            <button className={styles.actionButton} type="button" aria-label="Share">↗</button>
                         </div>
                     </section>
                 )}
             </main>
+
+            <div className={styles.profile}>
+                <button
+                    className={styles.avatar}
+                    type="button"
+                    aria-label="Profile menu"
+                    aria-expanded={isMenuOpen}
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                    VR
+                </button>
+
+                {isMenuOpen && (
+                    <ul className={styles.menu}>
+                        <li><button type="button">Settings</button></li>
+                        <li><button type="button">Plans</button></li>
+                        <li><button type="button">History</button></li>
+                        <li><button type="button">Progress</button></li>
+                        <li><button type="button">Sign out</button></li>
+                    </ul>
+                )}
+            </div>
         </div>
     )
 }

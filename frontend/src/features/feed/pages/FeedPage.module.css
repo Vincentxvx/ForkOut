@@ -1,50 +1,92 @@
 /* Sizes used to work out how tall the card can be */
 .page {
-  --header-height: 3.5rem;
   --space: 1.25rem;
-  --arrow-height: 34px;
-  --arrow-gap: 0.6rem;
+  --next-height: 40px;
+  --next-gap: 0.6rem;
+  --border: 2px solid #18261f;
 
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  background: #f4f7f4;
+  display: grid;
+  grid-template-columns: 240px 1fr 240px;
+  background: #ffffff;
   color: #18261f;
 }
 
-/* Same gradient as the login page */
-.header {
-  height: var(--header-height);
+/* ---------- Left side: logo, search, menu ---------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: var(--space);
+}
+
+.logo {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-green);
+}
+
+.search {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 0.75rem;
+  font: inherit;
+  border: var(--border);
+  border-radius: 0.6rem;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.navItem {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0 1.25rem;
-  background: linear-gradient(145deg, #0f5132 0%, #1f8a4c 55%, #8ac926 100%);
-  color: aliceblue;
-}
-
-.logoText {
-  font-size: 1.4rem;
+  padding: 0.3rem 0;
+  font: inherit;
   font-weight: 700;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
 }
 
-/* Same space above and below the feed */
+.navIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--color-green);
+  border: var(--border);
+  border-radius: 50%;
+}
+
+/* ---------- Middle: the feed ---------- */
+
 .main {
-  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
   padding: var(--space) 1rem;
 }
 
 .message {
   margin-top: 3rem;
   font-weight: 600;
-  text-align: center;
 }
 
 /* Card column on the left, action buttons on the right */
 .feed {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 1rem;
@@ -53,64 +95,26 @@
 .column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--arrow-gap);
+  gap: var(--next-gap);
 }
 
-.arrow {
-  width: 44px;
-  height: var(--arrow-height);
-  font-size: 1rem;
-  color: #18261f;
-  background: #ffffff;
-  border: 2px solid #b8c4bd;
-  border-radius: 0.6rem;
-  cursor: pointer;
-}
-
-.arrow:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-/*
-  The card fills the screen height: everything else is taken away
-  (header + space, arrow and gap above and below). The width follows
-  from the 9:16 ratio, but never gets wider than the screen.
-*/
+/* The card fills the screen height, the width comes from the 9:16 ratio */
 .card {
   position: relative;
-  height: calc(100dvh - var(--header-height) - 2 * (var(--space) + var(--arrow-height) + var(--arrow-gap)));
+  height: calc(100dvh - 2 * var(--space) - var(--next-height) - var(--next-gap));
   min-height: 420px;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: 9 / 8;
   max-width: calc(100vw - 2rem);
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
-  background: #ffffff;
-  border: 2px solid #18261f;
+  border: var(--border);
   border-radius: 1rem;
 }
 
-/* "2 / 5" in the top right corner of the card */
-.counter {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  margin: 0;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: rgb(255 255 255 / 85%);
-  border-radius: 99px;
-}
-
-/* The picture takes the space left over by the text */
+/* The picture fills the whole card */
 .media,
 .mediaPlaceholder {
-  flex: 1;
-  min-height: 0;
   width: 100%;
+  height: 100%;
 }
 
 .media {
@@ -126,123 +130,236 @@
   background: repeating-linear-gradient(45deg, #e7f1e8 0 12px, #dbe9dd 12px 24px);
 }
 
-.info {
+/* Creator, recipe name and features sit on top of the picture, at the bottom */
+.overlay {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 0.9rem;
 }
 
-.creator {
+.overlayRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chip {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   margin: 0;
+  padding: 0.4rem 0.75rem;
   font-size: 0.9rem;
   font-weight: 600;
-}
-
-.creatorAvatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--color-green);
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 0.6rem;
 }
 
 .name {
-  margin: 0;
-  font-size: 1.4rem;
-  line-height: 1.25;
+  flex: 1;
+  font-size: 1.05rem;
 }
 
-.description {
-  margin: 0;
-  font-size: 0.95rem;
-  color: #4a5852;
-}
-
-.tags {
+.features {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.1rem 0 0;
-  padding: 0;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
   list-style: none;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 0.6rem;
 }
 
-.tags li {
-  padding: 0.2rem 0.6rem;
-  border: 1.5px solid #b8c4bd;
-  border-radius: 99px;
-}
-
-.primary {
-  min-height: 46px;
-  margin-top: 0.3rem;
-  font: inherit;
-  font-weight: 700;
-  color: #ffffff;
-  background: var(--color-green);
-  border: 0;
+/* Wide button with a down arrow under the card */
+.next {
+  height: var(--next-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #18261f;
+  background: #ffffff;
+  border: var(--border);
   border-radius: 0.6rem;
   cursor: pointer;
 }
 
-.primary:hover {
-  background: #13633a;
+.next:hover {
+  background: #eef5ef;
 }
 
-/* Lifted by the bottom arrow's height, so the buttons line up with the card's bottom edge */
+/* Lifted by the next button's height, so they line up with the card's bottom edge */
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-bottom: calc(var(--arrow-height) + var(--arrow-gap));
-}
-
-.action {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  color: #4a5852;
+  gap: 0.75rem;
+  padding-bottom: calc(var(--next-height) + var(--next-gap));
 }
 
 .actionButton {
+  position: relative;
   width: 48px;
   height: 48px;
   font-size: 1.2rem;
   color: #18261f;
   background: #ffffff;
-  border: 2px solid #18261f;
+  border: var(--border);
   border-radius: 50%;
   cursor: pointer;
 }
 
+.actionCount {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 22px;
+  padding: 0 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 20px;
+  color: #ffffff;
+  background: var(--color-green);
+  border-radius: 99px;
+}
+
+/* ---------- Right side: profile picture and its menu ---------- */
+
+.profile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: var(--space);
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  font: inherit;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--color-green);
+  border: var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: calc(var(--space) + 64px);
+  right: var(--space);
+  z-index: 10;
+  width: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  background: #ffffff;
+  border: var(--border);
+  border-radius: 0.8rem;
+}
+
+.menu li + li {
+  border-top: var(--border);
+}
+
+.menu button {
+  width: 100%;
+  padding: 0.7rem;
+  font: inherit;
+  font-weight: 600;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background: #eef5ef;
+}
+
 /* Visible outline when using the keyboard */
-.arrow:focus-visible,
-.primary:focus-visible,
-.actionButton:focus-visible {
-  outline: 3px solid #18261f;
+.search:focus-visible,
+.navItem:focus-visible,
+.next:focus-visible,
+.actionButton:focus-visible,
+.avatar:focus-visible,
+.menu button:focus-visible {
+  outline: 3px solid var(--color-green);
   outline-offset: 2px;
 }
 
-/* Phones: action buttons go into a row under the card, so the card gets shorter by that row */
-@media (max-width: 560px) {
-  .feed {
-    flex-direction: column;
+/* ---------- Phones: top bar, card, menu bar at the bottom ---------- */
+
+@media (max-width: 760px) {
+  .page {
+    --top-bar: 4.5rem;
+    --bottom-bar: 4.5rem;
+
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    height: var(--top-bar);
+    flex-direction: row;
     align-items: center;
+    padding: 0 5rem 0 1rem;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+    height: var(--bottom-bar);
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin: 0;
+    background: #ffffff;
+    border-top: var(--border);
+  }
+
+  .navItem {
+    font-size: 0.75rem;
+  }
+
+  .main {
+    padding: 0 1rem calc(var(--bottom-bar) + 1rem);
   }
 
   .card {
-    height: calc(100dvh - var(--header-height) - 2 * (var(--space) + var(--arrow-height) + var(--arrow-gap)) - 5.5rem);
+    height: calc(100dvh - var(--top-bar) - var(--bottom-bar) - 1rem - var(--next-height) - var(--next-gap));
   }
 
+  /* The buttons go onto the right side of the picture, above the text */
   .actions {
-    flex-direction: row;
-    gap: 1.5rem;
-    padding-bottom: 0;
+    position: absolute;
+    right: 0.75rem;
+    bottom: calc(var(--next-height) + var(--next-gap) + 8rem);
+    padding: 0;
+  }
+
+  .profile {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+  }
+
+  .menu {
+    top: 4.5rem;
+    right: 1rem;
   }
 }
