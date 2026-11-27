@@ -67,7 +67,7 @@ class PostManagementController extends Controller
         $userName = user()['username'];
         
     $validator = Validator::make($request->all(), [
-        'name'        => 'required|string|max:100',
+        'name'        => 'required|string|min:5|max:100',
         'description' => 'nullable|string|max:2000',
         'prep_time'   => 'required|integer|min:1|max:1440',
         'image'       => 'required|image|mimes:jpg,jpeg,png|max:5120',
@@ -75,7 +75,7 @@ class PostManagementController extends Controller
         'ingredients'                 => 'required|array|min:1',
         'ingredients.*.ingredient_id' => 'required|integer|distinct|exists:ingredients,id',
         'ingredients.*.quantity'      => 'required|numeric|gt:0',
-        'ingredients.*.unit'          => 'required|in:g,ml', //unit managing is still under work
+        'ingredients.*.unit'          => 'required|in:g, dkg, kg, ml, cl,  dl, l', //unit managing is still under work
 
         'instructions'               => 'required|array|min:1',
         'instructions.*.instruction' => 'required|string|max:1000',
@@ -87,13 +87,25 @@ class PostManagementController extends Controller
         
 
         $data = $validator->validated();
+        /*
+        In case they didn't choose gramm or milliliter as the unit, I will have to convert it to calculate the exact macronutrient values.
+        Probably with switchcase
+        
+        */
         $nutrients = array("kcal"=>0, "protein"=>0, "fat"=>0,"carbs"=> 0 );
         foreach($data['ingredients'] as $ingredient){
             $result = PostManagement::macroNutrients($ingredient['ingredient_id']);
-            $nutrients["kcal"] += $result["kcal"]/100*$ingredient['quantity'];
-            $nutrients["protein"] += $result["protein"]/100*$ingredient['quantity'];
-            $nutrients["fat"] += $result["fat"]/100*$ingredient['quantity'];
-            $nutrients["carbs"] += $result["carbs"]/100*$ingredient['quantity'];
+            switch ($ingredient['unit']){
+                case "dkg": $multiplier=10;break;
+                case "kg": $multiplier=1000; break;
+                case "cl": $multiplier=10; break;
+                case "dl": $multiplier=100; break;
+                case "l": $multiplier=1000; break;
+            }
+            $nutrients["kcal"] += $multiplier*$result["kcal"]/100*$ingredient['quantity'];
+            $nutrients["protein"] += $multiplier*$result["protein"]/100*$ingredient['quantity'];
+            $nutrients["fat"] += $multiplier*$result["fat"]/100*$ingredient['quantity'];
+            $nutrients["carbs"] += $multiplier*$result["carbs"]/100*$ingredient['quantity'];
         }
 
         //image storing
